@@ -1,0 +1,32 @@
+{
+  "name": "temper",
+  "version": "0.0.1",
+  "description": "A toolkit for working with the web audio api",
+  "main": "temper.min.js",
+  "scripts": {
+    "test": "karma start"
+  },
+  "repository": "",
+  "keywords": [
+    "temperament",
+    "tuning",
+    "music",
+    "web",
+    "audio",
+    "api"
+  ],
+  "author": "Jeffrey Pierce",
+  "license": "BSD",
+  "devDependencies": {
+    "grunt-contrib-coffee": "~0.8.0",
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-karma": "~0.6.2"
+  },
+  "dependencies": {
+    "karma": "~0.10.9",
+    "karma-html-reporter": "~0.1",
+    "karma-osx-reporter": "*",
+    "connect": "~2.11.0"
+  }
+}
