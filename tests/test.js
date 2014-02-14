@@ -9,3 +9,7 @@ console.log(b.midiNotes);
 var i = temper(440).interval('P5', 'up', 8);
 console.log(i);
 
+var chord = temper(440).chord(['M3, up, 8', 'P5, up, 9'])
+console.log(chord)
+console.log(chord.names)
+

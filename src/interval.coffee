@@ -1,20 +1,20 @@
 intervals = ['U','m2','M2','m3','M3','P4','d5','P5','m6','M6','m7','M7','O']
 
-intervals_full = [
-  'unison'
-  'minor second'
-  'major second'
-  'minor third'
-  'major third'
-  'perfect fourth'
-  'diminished fifth'
-  'perfect fifth'
-  'minor sixth'
-  'major sixth'
-  'minor seventh'
-  'major seventh'
-  'octave'
-]
+# intervals_full = [
+#   'unison'
+#   'minor second'
+#   'major second'
+#   'minor third'
+#   'major third'
+#   'perfect fourth'
+#   'diminished fifth'
+#   'perfect fifth'
+#   'minor sixth'
+#   'major sixth'
+#   'minor seventh'
+#   'major seventh'
+#   'octave'
+# ]
 
 class Interval extends Note
   constructor: (val, temp, @direction="up", octave) ->
@@ -24,27 +24,28 @@ class Interval extends Note
       @intervalName = val
       position = intervals.indexOf val
       noteArray = @tonic.getNoteArray()
-      console.log(octave)
-      intervalOctave = octave
+      intervalOctave = parseInt(octave, 10) || @tonic.octave
 
       if @direction is 'up'
         intervalNumber = noteArray.indexOf(@tonic.letter) + position
-        intervalOctave += 1 if intervalNumber >= 12
+        if !octave?
+          intervalOctave += 1 if intervalNumber >= 12
 
       else if @direction is 'down'
         intervalNumber = noteArray.indexOf(@tonic.letter) - position
         if intervalNumber < 0
-          intervalOctave -= 1
           intervalNumber += 12
-
+          if !octave?
+            intervalOctave -= 1
+          
       intervalNote = noteArray[intervalNumber % 12] + intervalOctave.toString()
 
     _intervalNamefromNoteName = =>
-      # TODO: this is pretty precarious -- refactor
       tonicNoteArray = @getNoteArray.call @tonic
       noteArray = @getNoteArray()
       rootPosition = tonicNoteArray.indexOf @tonic.letter
       offsetPosition = noteArray.indexOf @letter
+
       @direction = 'down'
       position = (12 - offsetPosition + rootPosition) % 12
 

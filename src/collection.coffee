@@ -1,5 +1,5 @@
 class Collection
-  constructor: (item, temp, collection) ->
+  constructor: (val, temp, collection) ->
     @tonic = temp.tonic
     @notes = []
     @name = 'unknown'
@@ -8,18 +8,28 @@ class Collection
       @_play = temp.play
       @_pluck = temp.pluck
       
-    _collectionFromName = (item) =>
-      if collection[item]
-        @name = item
-        for interval in collection[item]
+    _collectionFromName = (val) =>
+      if collection[val]
+        @name = val
+        for interval in collection[val]
           @notes.push new Interval(interval, temp)
       else
-        throw new TypeError('Name "' + item + '" is not a valid argument')
+        throw new TypeError("Name #{val} is not a valid argument")
 
-    _collectionFromArray = (item) =>
+    _collectionFromArray = (val) =>
+      
+
       positions = []
-      for note, i in item
-        interval = new Interval(note, temp)
+      for note, i in val
+        if note.indexOf(',') > -1
+          complexInterval = note.split(',')
+          note = complexInterval[0].trim()
+          direction = complexInterval[1].trim()
+          octave = complexInterval[2].trim()
+          interval = new Interval(note, temp, direction, octave)
+        else
+          interval = new Interval(note, temp)
+
         positions.push interval.intervalName
         @notes.push interval
 
@@ -28,8 +38,8 @@ class Collection
           @name = key
           break
 
-    _collectionFromName(item) if utils.type(item) is 'string'
-    _collectionFromArray(item) if utils.type(item) is 'array'
+    _collectionFromName(val) if utils.type(val) is 'string'
+    _collectionFromArray(val) if utils.type(val) is 'array'
 
     @frequencies = [@tonic.frequency]
     @names = [@tonic.name]

@@ -31,7 +31,7 @@ class Note
         @name = val
 
       else
-        throw new TypeError('Note name "' + noteName + '" is not a valid argument')
+        throw new TypeError("Note name #{noteName} is not a valid argument")
 
     _noteFromFreq = (freq) =>
       if 30000 > freq > 0
@@ -41,7 +41,7 @@ class Note
         @name = @letter + @octave.toString()
         @accidental = if @name.match(/[b#]/)? then @name.match(/[b#]/) else ""
       else
-        throw new RangeError('Frequency "' + freq + '" is not valid')
+        throw new RangeError("Frequency #{freq} is not valid")
 
     _noteFromName(val) if utils.type(val) is "string"
     _noteFromFreq(val) if utils.type(val) is "number"
