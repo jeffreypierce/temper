@@ -388,6 +388,7 @@
     'Mixolydian': ['M2', 'M3', 'P4', 'P5', 'M6', 'm7', 'O'],
     'Aeolian': ['M2', 'm3', 'P4', 'P5', 'm6', 'm7', 'O'],
     'Locrian': ['m2', 'm3', 'P4', 'd5', 'm6', 'm7', 'O'],
+    'Whole Tone': ['M2', 'M3', 'd5', 'm6', 'm7', 'O'],
     'Prometheus': ['M2', 'M3', 'd5', 'M6', 'm7', 'O']
   };
 
