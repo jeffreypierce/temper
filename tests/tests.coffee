@@ -68,3 +68,5 @@ describe "Interval Tests", ->
     ASharp = temper("A5").interval("A#4", "down")
     expect(ASharp.intervalName).toBe("M7")
     expect(ASharp.frequency).toBe(temper("A#4").note().frequency)
+
+    

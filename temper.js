@@ -1,5 +1,5 @@
 (function() {
-  var Chord, Interval, Note, Scale, Temper, chords, context, flatKeys, intervals, intervals_full, note_names_enharmonic, notesFlat, notesSharp, root, scales, temper, temperaments, utils,
+  var Chord, Collection, Interval, Note, Scale, Temper, chords, context, flatKeys, intervals, intervals_full, note_names_enharmonic, notesFlat, notesSharp, root, scales, temper, temperaments, utils,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -169,14 +169,14 @@
       var _intervalNamefromNoteName, _noteFromInterval,
         _this = this;
       this.direction = direction != null ? direction : "up";
-      this.octave = octave != null ? octave : '';
       this.tonic = temp.tonic;
-      _noteFromInterval = function(val) {
+      _noteFromInterval = function(val, octave) {
         var intervalNote, intervalNumber, intervalOctave, noteArray, position;
         _this.intervalName = val;
         position = intervals.indexOf(val);
         noteArray = _this.tonic.getNoteArray();
-        intervalOctave = _this.tonic.octave;
+        console.log(octave);
+        intervalOctave = octave;
         if (_this.direction === 'up') {
           intervalNumber = noteArray.indexOf(_this.tonic.letter) + position;
           if (intervalNumber >= 12) {
@@ -192,10 +192,10 @@
         return intervalNote = noteArray[intervalNumber % 12] + intervalOctave.toString();
       };
       _intervalNamefromNoteName = function() {
-        var noteArray, offsetPosition, position, rootNoteArray, rootPosition;
-        rootNoteArray = _this.getNoteArray.call(_this.tonic);
+        var noteArray, offsetPosition, position, rootPosition, tonicNoteArray;
+        tonicNoteArray = _this.getNoteArray.call(_this.tonic);
         noteArray = _this.getNoteArray();
-        rootPosition = rootNoteArray.indexOf(_this.tonic.letter);
+        rootPosition = tonicNoteArray.indexOf(_this.tonic.letter);
         offsetPosition = noteArray.indexOf(_this.letter);
         _this.direction = 'down';
         position = (12 - offsetPosition + rootPosition) % 12;
@@ -209,7 +209,7 @@
         return intervals[position];
       };
       if (intervals.indexOf(val) > -1) {
-        val = _noteFromInterval(val);
+        val = _noteFromInterval(val, octave);
       }
       Interval.__super__.constructor.call(this, val, temp);
       if (!utils.type(this.intervalName)) {
@@ -238,6 +238,75 @@
     };
   }
 
+  Collection = (function() {
+    function Collection(item, temp, collection) {
+      var note, _collectionFromArray, _collectionFromName, _i, _len, _ref,
+        _this = this;
+      this.tonic = temp.tonic;
+      this.notes = [];
+      this.name = 'unknown';
+      if (typeof window !== "undefined" && window !== null) {
+        this._play = temp.play;
+        this._pluck = temp.pluck;
+      }
+      _collectionFromName = function(item) {
+        var interval, _i, _len, _ref, _results;
+        if (collection[item]) {
+          _this.name = item;
+          _ref = collection[item];
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            interval = _ref[_i];
+            _results.push(_this.notes.push(new Interval(interval, temp)));
+          }
+          return _results;
+        } else {
+          throw new TypeError('Name "' + item + '" is not a valid argument');
+        }
+      };
+      _collectionFromArray = function(item) {
+        var i, interval, key, note, positions, value, _i, _len, _results;
+        positions = [];
+        for (i = _i = 0, _len = item.length; _i < _len; i = ++_i) {
+          note = item[i];
+          interval = new Interval(note, temp);
+          positions.push(interval.intervalName);
+          _this.notes.push(interval);
+        }
+        _results = [];
+        for (key in collection) {
+          value = collection[key];
+          if (JSON.stringify(value) === JSON.stringify(positions)) {
+            _this.name = key;
+            break;
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+      if (utils.type(item) === 'string') {
+        _collectionFromName(item);
+      }
+      if (utils.type(item) === 'array') {
+        _collectionFromArray(item);
+      }
+      this.frequencies = [this.tonic.frequency];
+      this.names = [this.tonic.name];
+      this.midiNotes = [this.tonic.midiNote];
+      _ref = this.notes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        note = _ref[_i];
+        this.frequencies.push(note.frequency);
+        this.names.push(note.name);
+        this.midiNotes.push(note.midiNote);
+      }
+    }
+
+    return Collection;
+
+  })();
+
   chords = {
     'maj': ['M3', 'P5'],
     'maj6': ['M3', 'P5', 'M6'],
@@ -257,74 +326,16 @@
     'dream': ['P4', 'd5', 'P5']
   };
 
-  Chord = (function() {
+  Chord = (function(_super) {
+    __extends(Chord, _super);
+
     function Chord(chord, temp) {
-      var note, _chordFromArray, _chordFromName, _i, _len, _ref,
-        _this = this;
-      this.notes = [];
-      this.name = 'unknown';
-      this.tonic = temp.tonic;
-      if (typeof window !== "undefined" && window !== null) {
-        this._play = temp.play;
-        this._pluck = temp.pluck;
-      }
-      _chordFromName = function(chord) {
-        var interval, _i, _len, _ref, _results;
-        if (chords[chord]) {
-          _this.name = chord;
-          _ref = chords[chord];
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            interval = _ref[_i];
-            _results.push(_this.notes.push(new Interval(interval, temp)));
-          }
-          return _results;
-        } else {
-          throw new TypeError('Chord name "' + chord + '" is not a valid argument');
-        }
-      };
-      _chordFromArray = function(chord) {
-        var chordPositions, i, interval, key, note, value, _i, _len, _results;
-        chordPositions = [];
-        for (i = _i = 0, _len = chord.length; _i < _len; i = ++_i) {
-          note = chord[i];
-          interval = new Interval(note, temp);
-          chordPositions.push(interval.intervalName);
-          _this.notes.push(interval);
-        }
-        _results = [];
-        for (key in chords) {
-          value = chords[key];
-          if (JSON.stringify(value) === JSON.stringify(chordPositions)) {
-            _this.name = key;
-            break;
-          } else {
-            _results.push(void 0);
-          }
-        }
-        return _results;
-      };
-      if (utils.type(chord) === 'string') {
-        _chordFromName(chord);
-      }
-      if (utils.type(chord) === 'array') {
-        _chordFromArray(chord);
-      }
-      this.frequencies = [this.tonic.frequency];
-      this.names = [this.tonic.name];
-      this.midiNotes = [this.tonic.midiNote];
-      _ref = this.notes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        note = _ref[_i];
-        this.frequencies.push(note.frequency);
-        this.names.push(note.name);
-        this.midiNotes.push(note.midiNote);
-      }
+      Chord.__super__.constructor.call(this, chord, temp, chords);
     }
 
     return Chord;
 
-  })();
+  })(Collection);
 
   if (typeof window !== "undefined" && window !== null) {
     Chord.prototype.play = function(length) {
@@ -367,93 +378,36 @@
     'Lydian': ['M2', 'M3', 'A4', 'P5', 'M6', 'M7', 'O'],
     'Mixolydian': ['M2', 'M3', 'P4', 'P5', 'M6', 'm7', 'O'],
     'Aeolian': ['M2', 'm3', 'P4', 'P5', 'm6', 'm7', 'O'],
-    'Locrian': ['m2', 'm3', 'P4', 'd5', 'm6', 'm7', 'O']
+    'Locrian': ['m2', 'm3', 'P4', 'd5', 'm6', 'm7', 'O'],
+    'Prometheus': ['M2', 'M3', 'd5', 'M6', 'm7', 'O']
   };
 
-  Scale = (function() {
+  Scale = (function(_super) {
+    __extends(Scale, _super);
+
     function Scale(scale, temp) {
-      var note, _i, _len, _ref, _scaleFromArray, _scaleFromName,
-        _this = this;
-      this.tonic = temp.tonic;
-      this.notes = [];
-      this.name = 'unknown';
-      if (typeof window !== "undefined" && window !== null) {
-        this._play = temp.play;
-        this._pluck = temp.pluck;
-      }
-      _scaleFromName = function(scale) {
-        var interval, _i, _len, _ref, _results;
-        if (scales[scale]) {
-          _this.name = scale;
-          _ref = scales[scale];
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            interval = _ref[_i];
-            _results.push(_this.notes.push(new Interval(interval, temp)));
-          }
-          return _results;
-        } else {
-          throw new TypeError('Scale name "' + scale + '" is not a valid argument');
-        }
-      };
-      _scaleFromArray = function(scale) {
-        var i, interval, key, note, scalePositions, value, _i, _len, _results;
-        scalePositions = [];
-        for (i = _i = 0, _len = scale.length; _i < _len; i = ++_i) {
-          note = scale[i];
-          interval = new Interval(note, temp);
-          scalePositions.push(interval.intervalName);
-          _this.notes.push(interval);
-        }
-        _results = [];
-        for (key in scales) {
-          value = scales[key];
-          if (JSON.stringify(value) === JSON.stringify(scalePositions)) {
-            _this.name = key;
-            break;
-          } else {
-            _results.push(void 0);
-          }
-        }
-        return _results;
-      };
-      if (utils.type(scale) === 'string') {
-        _scaleFromName(scale);
-      }
-      if (utils.type(scale) === 'array') {
-        _scaleFromArray(scale);
-      }
-      this.frequencies = [this.tonic.frequency];
-      this.names = [this.tonic.name];
-      this.midiNotes = [this.tonic.midiNote];
-      _ref = this.notes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        note = _ref[_i];
-        this.frequencies.push(note.frequency);
-        this.names.push(note.name);
-        this.midiNotes.push(note.midiNote);
-      }
+      Scale.__super__.constructor.call(this, scale, temp, scales);
     }
 
     return Scale;
 
-  })();
+  })(Collection);
 
   if (typeof window !== "undefined" && window !== null) {
     Scale.prototype.play = function(length) {
       var i, note, _i, _len, _ref, _results,
         _this = this;
       if (length == null) {
-        length = 2;
+        length = 1;
       }
-      this._play.call(this.tonic, length, 2);
+      this._play.call(this.tonic, length, 3);
       _ref = this.notes;
       _results = [];
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         note = _ref[i];
         _results.push((function(note) {
           return setTimeout((function() {
-            return _this._play.call(note, length, 2);
+            return _this._play.call(note, length, 3);
           }), length * 1000 / 2 * (i + 1));
         })(note));
       }
@@ -463,16 +417,16 @@
       var i, note, _i, _len, _ref, _results,
         _this = this;
       if (length == null) {
-        length = 2;
+        length = 1;
       }
-      this._pluck.call(this.tonic, length, 2);
+      this._pluck.call(this.tonic, length, 3);
       _ref = this.notes;
       _results = [];
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         note = _ref[i];
         _results.push((function(note) {
           return setTimeout((function() {
-            return _this._pluck.call(note, length, 2);
+            return _this._pluck.call(note, length, 3);
           }), length * 1000 / 2 * (i + 1));
         })(note));
       }
@@ -582,6 +536,10 @@
     return new Temper(val);
   };
 
+  temper.tonic = function(val) {
+    return new Temper(val);
+  };
+
   temper.chords = function(val) {
     return utils.list.call(chords, val);
   };
@@ -618,7 +576,7 @@
       end = begin + length;
       osc = context.createOscillator();
       osc.type = 'sine';
-      osc.frequency.value = this.frequency ? this.frequency : this._note.frequency;
+      osc.frequency.value = this.frequency ? this.frequency : this.tonic.frequency;
       vol = context.createGain();
       vol.gain.setValueAtTime(0, begin);
       vol.gain.linearRampToValueAtTime(volume, end - (length * 0.5));
@@ -626,8 +584,7 @@
       osc.connect(vol);
       vol.connect(context.destination);
       osc.start(begin);
-      osc.stop(end);
-      return this;
+      return osc.stop(end);
     };
     Temper.prototype.pluck = function(length, numOfNotes) {
       var audioBuffer, begin, end, frequency, pluck, samples, vol, volume, _karplusStrong;
@@ -671,7 +628,7 @@
       };
       vol = context.createGain();
       pluck = context.createBufferSource();
-      frequency = this.frequency ? this.frequency : this._note.frequency;
+      frequency = this.frequency ? this.frequency : this.tonic.frequency;
       samples = _karplusStrong(frequency);
       audioBuffer = context.createBuffer(1, samples.length, context.sampleRate);
       audioBuffer.getChannelData(0).set(samples);
@@ -680,8 +637,7 @@
       vol.connect(context.destination);
       vol.gain.value = volume;
       pluck.start(begin);
-      pluck.stop(end);
-      return this;
+      return pluck.stop(end);
     };
   }
 

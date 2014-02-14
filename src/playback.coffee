@@ -9,7 +9,7 @@ if window?
 
     osc = context.createOscillator()
     osc.type = 'sine'
-    osc.frequency.value = if @frequency then @frequency else @_note.frequency
+    osc.frequency.value = if @frequency then @frequency else @tonic.frequency
 
     vol = context.createGain()
     vol.gain.setValueAtTime(0, begin)
@@ -21,8 +21,6 @@ if window?
 
     osc.start begin
     osc.stop end
-
-    this
 
   Temper::pluck = (length = 2, numOfNotes = 1) ->
     volume = 0.9 / numOfNotes
@@ -62,7 +60,7 @@ if window?
     vol = context.createGain()
     pluck = context.createBufferSource()
 
-    frequency = if @frequency then @frequency else @_note.frequency
+    frequency = if @frequency then @frequency else @tonic.frequency
     samples = _karplusStrong frequency
     audioBuffer = context.createBuffer(1, samples.length, context.sampleRate)
 
@@ -74,5 +72,3 @@ if window?
     vol.gain.value = volume
     pluck.start begin
     pluck.stop end
-
-    this

@@ -16,6 +16,7 @@ module.exports = (grunt) ->
             'src/utils.coffee'
             'src/note.coffee'
             'src/interval.coffee'
+            'src/collection.coffee'
             'src/chord.coffee'
             'src/scale.coffee'
             'src/temper.coffee'

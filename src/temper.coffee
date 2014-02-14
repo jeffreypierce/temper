@@ -77,6 +77,9 @@ temper = (val, tuningFrequency, temperament) ->
 temper.note = (val) ->
   new Temper(val)
 
+temper.tonic = (val) ->
+  new Temper(val)
+
 temper.chords = (val) ->
   utils.list.call(chords, val)
   

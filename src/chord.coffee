@@ -16,49 +16,10 @@ chords =
   'sus2': ['M2', 'P5']
   'dream': ['P4','d5','P5']
 
-class Chord
+class Chord extends Collection
   constructor: (chord, temp) ->
-
-    @notes = []
-    @name = 'unknown'
-    @tonic = temp.tonic
-
-    if window?
-      @_play = temp.play
-      @_pluck = temp.pluck
+    super(chord, temp, chords)
       
-    _chordFromName = (chord) =>
-      if chords[chord]
-        @name = chord
-        for interval in chords[chord]
-          @notes.push new Interval(interval, temp)
-      else
-        throw new TypeError('Chord name "' + chord + '" is not a valid argument')
-
-    _chordFromArray = (chord) =>
-      chordPositions = []
-      for note, i in chord
-        interval = new Interval(note, temp)
-        chordPositions.push interval.intervalName
-        @notes.push interval
-
-      for key, value of chords
-        if JSON.stringify(value) is JSON.stringify(chordPositions)
-          @name = key
-          break
-
-    _chordFromName(chord) if utils.type(chord) is 'string'
-    _chordFromArray(chord) if utils.type(chord) is 'array'
-
-    @frequencies = [@tonic.frequency]
-    @names = [@tonic.name]
-    @midiNotes = [@tonic.midiNote]
-    for note in @notes
-      @frequencies.push(note.frequency)
-      @names.push(note.name)
-      @midiNotes.push(note.midiNote)
-      
-
 if window?
   Chord::play = (length) ->
     @_play.call(@tonic, length, @notes.length + 1)

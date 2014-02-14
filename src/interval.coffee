@@ -17,32 +17,33 @@ intervals_full = [
 ]
 
 class Interval extends Note
-  constructor: (val, temp, @direction="up", @octave='') ->
+  constructor: (val, temp, @direction="up", octave) ->
     @tonic = temp.tonic
 
-    _noteFromInterval = (val) =>
+    _noteFromInterval = (val, octave) =>
       @intervalName = val
       position = intervals.indexOf val
-
       noteArray = @tonic.getNoteArray()
-      intervalOctave = @tonic.octave
+      console.log(octave)
+      intervalOctave = octave
 
       if @direction is 'up'
         intervalNumber = noteArray.indexOf(@tonic.letter) + position
         intervalOctave += 1 if intervalNumber >= 12
+
       else if @direction is 'down'
         intervalNumber = noteArray.indexOf(@tonic.letter) - position
-
         if intervalNumber < 0
           intervalOctave -= 1
           intervalNumber += 12
+
       intervalNote = noteArray[intervalNumber % 12] + intervalOctave.toString()
 
     _intervalNamefromNoteName = =>
       # TODO: this is pretty precarious -- refactor
-      rootNoteArray = @getNoteArray.call @tonic
+      tonicNoteArray = @getNoteArray.call @tonic
       noteArray = @getNoteArray()
-      rootPosition = rootNoteArray.indexOf @tonic.letter
+      rootPosition = tonicNoteArray.indexOf @tonic.letter
       offsetPosition = noteArray.indexOf @letter
       @direction = 'down'
       position = (12 - offsetPosition + rootPosition) % 12
@@ -55,7 +56,7 @@ class Interval extends Note
       intervals[position]
 
     if intervals.indexOf(val) > -1
-      val = _noteFromInterval(val)
+      val = _noteFromInterval(val, octave)
 
     super(val, temp)
 
