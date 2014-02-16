@@ -2,11 +2,11 @@ notesFlat = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']
 notesSharp = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 flatKeys = ['C','F','Bb','Eb','Ab','Db','Gb', 'Cb']
 
-note_names_enharmonic =
-  'C': 'B#'
-  'E': 'E#'
-  'F': 'E3'
-  'B': 'Cb'
+# note_names_enharmonic =
+#   'C': 'B#'
+#   'E': 'E#'
+#   'F': 'E3'
+#   'B': 'Cb'
 
 class Note
   constructor: (val, temp) ->

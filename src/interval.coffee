@@ -1,4 +1,18 @@
-intervals = ['U','m2','M2','m3','M3','P4','d5','P5','m6','M6','m7','M7','O']
+U = 'U'
+m2 = 'm2'
+M2 = 'M2'
+m3 = 'm3'
+M3 = 'M3'
+P4 = 'P4'
+d5 = 'd5'
+P5 = 'P5'
+m6 = 'm6'
+M6 = 'M6'
+m7 = 'm7'
+M7 = 'M7'
+O = 'O'
+
+intervals = [U, m2, M2, m3, M3, P4, d5, P5, m6, M6, m7, M7, O ]
 
 # intervals_full = [
 #   'unison'

@@ -1,5 +1,5 @@
 (function() {
-  var Chord, Collection, Interval, Note, Scale, Temper, chords, context, flatKeys, intervals, note_names_enharmonic, notesFlat, notesSharp, root, scales, temper, temperaments, utils,
+  var Chord, Collection, Interval, M2, M3, M6, M7, Note, O, P4, P5, Scale, Temper, U, chords, context, d5, flatKeys, intervals, m2, m3, m6, m7, note_names_enharmonic, notesFlat, notesSharp, root, scales, temper, temperaments, utils,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -158,7 +158,33 @@
     };
   }
 
-  intervals = ['U', 'm2', 'M2', 'm3', 'M3', 'P4', 'd5', 'P5', 'm6', 'M6', 'm7', 'M7', 'O'];
+  U = 'U';
+
+  m2 = 'm2';
+
+  M2 = 'M2';
+
+  m3 = 'm3';
+
+  M3 = 'M3';
+
+  P4 = 'P4';
+
+  d5 = 'd5';
+
+  P5 = 'P5';
+
+  m6 = 'm6';
+
+  M6 = 'M6';
+
+  m7 = 'm7';
+
+  M7 = 'M7';
+
+  O = 'O';
+
+  intervals = [U, m2, M2, m3, M3, P4, d5, P5, m6, M6, m7, M7, O];
 
   Interval = (function(_super) {
     __extends(Interval, _super);
@@ -317,22 +343,22 @@
   })();
 
   chords = {
-    'maj': ['M3', 'P5'],
-    'maj6': ['M3', 'P5', 'M6'],
-    'maj7': ['M3', 'P5', 'M7'],
-    'majb6': ['M3', 'P5', 'm6'],
-    'majb7': ['M3', 'P5', 'm7'],
-    'min6': ['m3', 'P5', 'm6'],
-    'min7': ['m3', 'P5', 'm7'],
-    'minM7': ['m3', 'P5', 'M7'],
-    'min': ['m3', 'P5'],
-    'aug': ['M3', 'm6'],
-    'aug7': ['M3', 'm6', 'M7'],
-    'dim': ['m3', 'd5'],
-    'dim7': ['m3', 'd5', 'M6'],
-    'sus4': ['P4', 'P5'],
-    'sus2': ['M2', 'P5'],
-    'dream': ['P4', 'd5', 'P5']
+    'maj': [M3, P5],
+    'maj6': [M3, P5, M6],
+    'maj7': [M3, P5, M7],
+    'majb6': [M3, P5, m6],
+    'majb7': [M3, P5, m7],
+    'min6': [m3, P5, m6],
+    'min7': [m3, P5, m7],
+    'minM7': [m3, P5, M7],
+    'min': [m3, P5],
+    'aug': [M3, m6],
+    'aug7': [M3, m6, M7],
+    'dim': [m3, d5],
+    'dim7': [m3, d5, M6],
+    'sus4': [P4, P5],
+    'sus2': [M2, P5],
+    'dream': [P4, d5, P5]
   };
 
   Chord = (function(_super) {
@@ -378,18 +404,33 @@
   }
 
   scales = {
-    'Major': ['M2', 'M3', 'P4', 'P5', 'M6', 'M7', 'O'],
-    'Minor': ['M2', 'm3', 'P4', 'P5', 'm6', 'm7', 'O'],
-    'Chromatic': ['m2', 'M2', 'm3', 'M3', 'P4', 'd5', 'P5', 'm6', 'M6', 'm7', 'M7', 'O'],
-    'Ionian': ['M2', 'M3', 'P4', 'P5', 'M6', 'M7', 'O'],
-    'Dorian': ['M2', 'm3', 'P4', 'P5', 'M6', 'm7', 'O'],
-    'Phrygian': ['m2', 'm3', 'P4', 'P5', 'm6', 'm7', 'O'],
-    'Lydian': ['M2', 'M3', 'A4', 'P5', 'M6', 'M7', 'O'],
-    'Mixolydian': ['M2', 'M3', 'P4', 'P5', 'M6', 'm7', 'O'],
-    'Aeolian': ['M2', 'm3', 'P4', 'P5', 'm6', 'm7', 'O'],
-    'Locrian': ['m2', 'm3', 'P4', 'd5', 'm6', 'm7', 'O'],
-    'Whole Tone': ['M2', 'M3', 'd5', 'm6', 'm7', 'O'],
-    'Prometheus': ['M2', 'M3', 'd5', 'M6', 'm7', 'O']
+    'Major': [M2, M3, P4, P5, M6, M7, O],
+    'Melodic Minor': [M2, m3, P4, P5, m6, m7, O],
+    'Harmonic Minor': [M2, m3, P4, P5, m6, M7],
+    'Chromatic': [m2, M2, m3, M3, P4, d5, P5, m6, M6, m7, M7, O],
+    'Ionian': [M2, M3, P4, P5, M6, M7, O],
+    'Dorian': [M2, m3, P4, P5, M6, m7, O],
+    'Phrygian': [m2, m3, P4, P5, m6, m7, O],
+    'Lydian': [M2, M3, A4, P5, M6, M7, O],
+    'Mixolydian': [M2, M3, P4, P5, M6, m7, O],
+    'Aeolian': [M2, m3, P4, P5, m6, m7, O],
+    'Locrian': [m2, m3, P4, d5, m6, m7, O],
+    'Whole Tone': [M2, M3, d5, m6, m7, O],
+    'Acoustic': [M2, M3, d5, P5, M6, m7, O],
+    'Enigmatic': [m2, M3, d5, m6, m7, M7, O],
+    'Enigmatic Minor': [m2, m3, d5, P5, m7, M7, O],
+    'Neapolitan': [m2, m3, P4, P4, P5, m6, M7, O],
+    'Prometheus': [M2, M3, d5, M6, m7, O],
+    'In Sen': [m2, P4, P5, m7, O],
+    'In': [m2, P4, P5, m6, O],
+    'Hirajoshi': [m2, P4, P5, m6, O],
+    'Yo': [M2, P4, P5, M6, O],
+    'Iwato': [m2, P4, d5, m7, O],
+    'Pentatonic': [M2, M3, P5, M6, O],
+    'Octatonic I': [M2, m3, P4, d5, m6, M6, M7, O],
+    'Octatonic II': [m2, m3, M3, d5, P5, M6, m7, O],
+    'Tritone': [m2, M3, d5, P5, m7, O],
+    'Hungarian': [M2, m3, d5, P5, m6, M7, O]
   };
 
   Scale = (function(_super) {
