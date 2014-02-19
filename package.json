@@ -1,7 +1,7 @@
 {
   "name": "temper",
-  "version": "0.0.1",
-  "description": "A toolkit for working with the web audio api",
+  "version": "0.1.0",
+  "description": "A lightweight music theory library for tuning the web audio api",
   "main": "temper.min.js",
   "scripts": {
     "test": "karma start"

@@ -1,9 +1,16 @@
 # Temper.js
-A toolkit for working with tuning and temperament in the [web audio api](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html)
+A lightweight music theory library for tuning the [web audio api](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html)
 
 ## Simple Usage
-First off, get temper in your application / webpage  
-`bower install temper` or `npm install temper` or clone this repo
+
+First off, get **temper.js** into your webpage  
+`bower install temper`   
+and `<script src='bower_componentes/temper/temper.min.js'></script>`
+
+or into your node app   
+`npm install temper`  
+and `var temper = require('temper.js');`
+
 
 Next, 
 
@@ -14,6 +21,5 @@ Next,
 ## Considerations
 
 ## Roadmap
-
-+ Refactor interval octave handling to more easily make chord inversions
 + Precision MIDI values for non-standard tunings
++ Chord Inverstion / Figured Bass

@@ -8,7 +8,7 @@ class Collection
       @_play = temp.play
       @_pluck = temp.pluck
       
-    _collectionFromName = (val) =>
+    collectionFromName = (val) =>
       if collection[val]
         @name = val
         for interval in collection[val]
@@ -16,9 +16,7 @@ class Collection
       else
         throw new TypeError("Name #{val} is not a valid argument")
 
-    _collectionFromArray = (val) =>
-      
-
+    collectionFromArray = (val) =>
       positions = []
       for note, i in val
         if note.indexOf(',') > -1
@@ -38,8 +36,8 @@ class Collection
           @name = key
           break
 
-    _collectionFromName(val) if utils.type(val) is 'string'
-    _collectionFromArray(val) if utils.type(val) is 'array'
+    collectionFromName(val) if utils.type(val) is 'string'
+    collectionFromArray(val) if utils.type(val) is 'array'
 
     @frequencies = [@tonic.frequency]
     @names = [@tonic.name]
@@ -48,3 +46,5 @@ class Collection
       @frequencies.push(note.frequency)
       @names.push(note.name)
       @midiNotes.push(note.midiNote)
+
+    this

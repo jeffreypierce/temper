@@ -11,6 +11,7 @@ M6 = 'M6'
 m7 = 'm7'
 M7 = 'M7'
 O = 'O'
+A4 = 'd5'
 
 intervals = [U, m2, M2, m3, M3, P4, d5, P5, m6, M6, m7, M7, O ]
 
@@ -31,30 +32,30 @@ intervals = [U, m2, M2, m3, M3, P4, d5, P5, m6, M6, m7, M7, O ]
 # ]
 
 class Interval extends Note
-  constructor: (val, temp, @direction="up", octave) ->
+  constructor: (val, temp, @direction="up", octaveOffset="0") ->
     @tonic = temp.tonic
 
-    _noteFromInterval = (val, octave) =>
+    noteFromInterval = (val, octaveOffset) =>
       @intervalName = val
       position = intervals.indexOf val
       noteArray = @tonic.getNoteArray()
-      intervalOctave = parseInt(octave, 10) || @tonic.octave
+      intervalOctave = @tonic.octave
 
       if @direction is 'up'
+        intervalOctave += parseInt(octaveOffset, 10)
         intervalNumber = noteArray.indexOf(@tonic.letter) + position
-        if !octave?
-          intervalOctave += 1 if intervalNumber >= 12
+        intervalOctave += 1 if intervalNumber >= 12
 
       else if @direction is 'down'
+        intervalOctave -= parseInt(octaveOffset, 10)
         intervalNumber = noteArray.indexOf(@tonic.letter) - position
         if intervalNumber < 0
           intervalNumber += 12
-          if !octave?
-            intervalOctave -= 1
+          intervalOctave -= 1
           
       intervalNote = noteArray[intervalNumber % 12] + intervalOctave.toString()
 
-    _intervalNamefromNoteName = =>
+    intervalNamefromNoteName = =>
       tonicNoteArray = @getNoteArray.call @tonic
       noteArray = @getNoteArray()
       rootPosition = tonicNoteArray.indexOf @tonic.letter
@@ -71,11 +72,12 @@ class Interval extends Note
       intervals[position]
 
     if intervals.indexOf(val) > -1
-      val = _noteFromInterval(val, octave)
+      val = noteFromInterval(val, octaveOffset)
 
     super(val, temp)
 
-    @intervalName = _intervalNamefromNoteName() if !utils.type(@intervalName)
+    @intervalName = intervalNamefromNoteName() if !utils.type(@intervalName)
+
     if @tonic.name is @name
       @direction = '-'
 
@@ -85,9 +87,9 @@ class Interval extends Note
 
 if window?
   Interval::play = (length) ->
-    @_play.call(this, length, 2)
-    @_play.call(@tonic, length, 2)
+    @play.call(this, length, 2)
+    @play.call(@tonic, length, 2)
 
   Interval::pluck=  (length) ->
-    @_pluck.call(this, length, 2)
-    @_pluck.call(@tonic, length, 2)
+    @pluck.call(this, length, 2)
+    @pluck.call(@tonic, length, 2)

@@ -41,7 +41,6 @@ class Temper
 
       if temperaments[temperament]
         @_temperament = temperament
-        @note(@tonic.name)
 
         if(@_interval)
           @interval(@_interval.name)
@@ -50,9 +49,9 @@ class Temper
     else
       @_temperament
 
-  interval: (interval, direction, octave) ->
+  interval: (interval, direction, octaveOffset) ->
     if interval?
-      @_interval = new Interval(interval, this, direction, octave)
+      @_interval = new Interval(interval, this, direction, octaveOffset)
     else
       @_interval
 

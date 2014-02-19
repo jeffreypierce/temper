@@ -6,10 +6,10 @@ console.log(a.frequencies);
 var b = temper(440).chord('maj');
 console.log(b.midiNotes);
 
-var i = temper(440).interval('P5', 'up', 8);
+var i = temper(440).interval('P5', 'up', 4);
 console.log(i);
 
-var chord = temper(440).chord(['M3, up, 8', 'P5, up, 9'])
-console.log(chord)
-console.log(chord.names)
+var chord = temper(440).chord(['M3, up, 1', 'P5, up, 2']);
+console.log(chord);
+console.log(chord.names);
 

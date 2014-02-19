@@ -69,4 +69,4 @@ describe "Interval Tests", ->
     expect(ASharp.intervalName).toBe("M7")
     expect(ASharp.frequency).toBe(temper("A#4").note().frequency)
 
-    
+  
