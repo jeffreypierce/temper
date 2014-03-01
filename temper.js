@@ -69,6 +69,7 @@
         this._play = temp.play;
         this._pluck = temp.pluck;
       }
+      console.log('note');
       this.rootFrequency = temp.rootFrequency();
       this.temperament = temp._temperament;
       referenceFrequency = function() {
@@ -98,7 +99,7 @@
         }
       };
       noteFromFreq = function(freq) {
-        var getNoteLetterFromFrequency;
+        var accidental, getNoteLetterFromFrequency;
         getNoteLetterFromFrequency = function() {
           var baseFreq, noteArray, noteNumber;
           baseFreq = Math.log(_this.frequency / referenceFrequency());
@@ -106,7 +107,7 @@
           if (noteNumber === 12) {
             _this.octave += 1;
           }
-          noteArray = _this.getNoteArray(_this.letter);
+          noteArray = _this.getNoteArray();
           return noteArray[noteNumber % 12];
         };
         if ((30000 > freq && freq > 0)) {
@@ -114,7 +115,8 @@
           _this.frequency = utils.normalize(freq);
           _this.letter = getNoteLetterFromFrequency();
           _this.name = _this.letter + _this.octave.toString();
-          return _this.accidental = _this.name.match(/[b#]/) != null ? _this.name.match(/[b#]/) : "";
+          accidental = _this.name.match(/[b#]/);
+          return _this.accidental = accidental != null ? accidental : "";
         } else {
           throw new RangeError("Frequency " + freq + " is not valid");
         }
@@ -134,10 +136,6 @@
       } else {
         return notesSharp;
       }
-    };
-
-    Note.prototype.update = function() {
-      return noteFromName(this.name);
     };
 
     return Note;
@@ -538,8 +536,15 @@
       if (temperament != null) {
         if (temperaments[temperament]) {
           this._temperament = temperament;
-          if (this._interval) {
+          this.tonic = this.note(this.tonic.name);
+          if ((this._interval != null)) {
             this.interval(this._interval.name);
+          }
+          if ((this._scale != null)) {
+            this.scale(this._scale.names);
+          }
+          if ((this._chord != null)) {
+            this.chord(this._chord.name);
           }
         }
         return this;
@@ -576,8 +581,6 @@
 
   })();
 
-  root = this;
-
   temper = function(val, tuningFrequency, temperament) {
     return new Temper(val, tuningFrequency, temperament);
   };
@@ -603,6 +606,8 @@
   };
 
   temper.centOffset = utils.centOffset;
+
+  root = this;
 
   if (typeof exports !== "undefined") {
     module.exports = temper;
@@ -692,3 +697,7 @@
   }
 
 }).call(this);
+
+/*
+//# sourceMappingURL=.././temper.js.map
+*/

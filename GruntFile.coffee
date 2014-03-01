@@ -8,9 +8,10 @@ module.exports = (grunt) ->
         configFile: 'karma.conf.js'
 
     coffee:
-      compileJoined:
+      compileWithMaps:
         options:
-          join: true
+          # join: true
+          sourceMap: true
         files:
           'temper.js': [
             'src/utils.coffee'

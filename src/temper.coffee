@@ -42,8 +42,16 @@ class Temper
       if temperaments[temperament]
         @_temperament = temperament
 
-        if(@_interval)
+        @tonic = @note(@tonic.name)
+
+        if(@_interval?)
           @interval(@_interval.name)
+
+        if(@_scale?)
+          @scale(@_scale.names)
+
+        if(@_chord?)
+          @chord(@_chord.name)
 
       this
     else
@@ -67,9 +75,6 @@ class Temper
     else
       @_chord
 
-# node or browser
-root = this
-
 temper = (val, tuningFrequency, temperament) ->
   new Temper(val, tuningFrequency, temperament)
 
@@ -89,6 +94,9 @@ temper.temperaments = (val) ->
   utils.list.call(temperaments, val)
 
 temper.centOffset = utils.centOffset
+
+# node or browser
+root = this
 
 if typeof exports isnt "undefined"
   module.exports = temper

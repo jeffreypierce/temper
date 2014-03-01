@@ -13,7 +13,7 @@ class Note
     if window?
       @_play = temp.play
       @_pluck = temp.pluck
-
+    console.log 'note'
     @rootFrequency = temp.rootFrequency()
     @temperament = temp._temperament
 
@@ -48,7 +48,8 @@ class Note
         baseFreq = Math.log @frequency / referenceFrequency()
         noteNumber = Math.round baseFreq / utils.stepRatio
         @octave += 1 if noteNumber is 12
-        noteArray = @getNoteArray(@letter)
+        noteArray = @getNoteArray()
+
         noteArray[noteNumber % 12]
 
       if 30000 > freq > 0
@@ -56,7 +57,9 @@ class Note
         @frequency = utils.normalize freq
         @letter = getNoteLetterFromFrequency()
         @name = @letter + @octave.toString()
-        @accidental = if @name.match(/[b#]/)? then @name.match(/[b#]/) else ""
+        accidental = @name.match(/[b#]/)
+        @accidental = if accidental? then accidental else ""
+
       else
         throw new RangeError("Frequency #{freq} is not valid")
 
@@ -67,9 +70,6 @@ class Note
 
   getNoteArray: (letter) ->
     if flatKeys.indexOf(letter) > -1 then notesFlat else notesSharp
-
-  update: ->
-    noteFromName(@name)
 
 if window?
   Note::play = (length) ->
