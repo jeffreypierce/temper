@@ -72,7 +72,7 @@
       this.rootFrequency = temp.rootFrequency();
       this.temperament = temp._temperament;
       referenceFrequency = function() {
-        return this.rootFrequency * Math.pow(2, this.octave);
+        return _this.rootFrequency * Math.pow(2, _this.octave);
       };
       noteFromName = function(noteName) {
         var getFrequencyFromNoteLetter, parsed;

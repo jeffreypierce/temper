@@ -1,7 +1,7 @@
 if window?
   window.AudioContext = window.AudioContext || window.webkitAudioContext
   context = new AudioContext()
-  
+
   Temper::play = (length = 2, numOfNotes = 1) ->
     volume = 0.9 / numOfNotes
     begin = context.currentTime
@@ -29,8 +29,8 @@ if window?
 
     _karplusStrong = (freq) ->
       noise = []
-      samples = new Float32Array context.sampleRate
-      
+      samples = new Float32Array(context.sampleRate)
+
       # generate noise
       period = Math.floor(context.sampleRate / freq)
       i = 0

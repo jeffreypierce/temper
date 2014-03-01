@@ -17,7 +17,7 @@ class Note
     @rootFrequency = temp.rootFrequency()
     @temperament = temp._temperament
 
-    referenceFrequency= ->
+    referenceFrequency = =>
       @rootFrequency * Math.pow(2, @octave)
 
     noteFromName = (noteName) =>
@@ -50,7 +50,7 @@ class Note
         @octave += 1 if noteNumber is 12
         noteArray = @getNoteArray(@letter)
         noteArray[noteNumber % 12]
-     
+
       if 30000 > freq > 0
         @octave = Math.floor(Math.log(freq / @rootFrequency) / Math.log 2)
         @frequency = utils.normalize freq
@@ -63,7 +63,7 @@ class Note
     noteFromName(val) if utils.type(val) is "string"
     noteFromFreq(val) if utils.type(val) is "number"
 
-    @midiNote = Math.round(12 * Math.log(@frequency/440) / Math.log(2) + 69)
+    @midiNote = Math.round(12 * Math.log(@frequency / 440) / Math.log(2) + 69)
 
   getNoteArray: (letter) ->
     if flatKeys.indexOf(letter) > -1 then notesFlat else notesSharp
