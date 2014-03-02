@@ -14,7 +14,7 @@ utils =
     multiplier = Math.pow(10, precision)
     Math.round(num * multiplier) / multiplier
 
-  list: (val, arr)->
+  list: (val, arr) ->
     if val and this[val]
       this[val]
     else
@@ -32,6 +32,3 @@ utils =
     Math.pow(2, (cents / 100 / 12))
 
   stepRatio: Math.log Math.pow(2, 1 / 12)
-
-
-

@@ -515,7 +515,7 @@
       if (val != null) {
         this.tonic = new Note(val, this);
       }
-      this;
+      this.tonic;
     }
 
     Temper.prototype.rootFrequency = function() {

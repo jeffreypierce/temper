@@ -14,7 +14,7 @@ utils =
     multiplier = Math.pow(10, precision)
     Math.round(num * multiplier) / multiplier
 
-  list: (val, arr)->
+  list: (val, arr) ->
     if val and this[val]
       this[val]
     else
@@ -33,18 +33,9 @@ utils =
 
   stepRatio: Math.log Math.pow(2, 1 / 12)
 
-
-
-
 notesFlat = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']
 notesSharp = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 flatKeys = ['C','F','Bb','Eb','Ab','Db','Gb', 'Cb']
-
-# note_names_enharmonic =
-#   'C': 'B#'
-#   'E': 'E#'
-#   'F': 'E3'
-#   'B': 'Cb'
 
 class Note
   constructor: (val, temp) ->
@@ -104,7 +95,7 @@ class Note
     noteFromName(val) if utils.type(val) is "string"
     noteFromFreq(val) if utils.type(val) is "number"
 
-    @midiNote = Math.round(12 * Math.log(@frequency/440) / Math.log(2) + 69)
+    @midiNote = Math.round(12 * Math.log(@frequency / 440) / Math.log(2) + 69)
 
   getNoteArray: (letter) ->
     if flatKeys.indexOf(letter) > -1 then notesFlat else notesSharp
@@ -133,24 +124,8 @@ A4 = 'd5'
 
 intervals = [U, m2, M2, m3, M3, P4, d5, P5, m6, M6, m7, M7, O ]
 
-# intervals_full = [
-#   'unison'
-#   'minor second'
-#   'major second'
-#   'minor third'
-#   'major third'
-#   'perfect fourth'
-#   'diminished fifth'
-#   'perfect fifth'
-#   'minor sixth'
-#   'major sixth'
-#   'minor seventh'
-#   'major seventh'
-#   'octave'
-# ]
-
 class Interval extends Note
-  constructor: (val, temp, @direction="up", octaveOffset="0") ->
+  constructor: (val, temp, @direction = "up", octaveOffset = "0") ->
     @tonic = temp.tonic
 
     noteFromInterval = (val, octaveOffset) =>
@@ -170,7 +145,7 @@ class Interval extends Note
         if intervalNumber < 0
           intervalNumber += 12
           intervalOctave -= 1
-          
+
       intervalNote = noteArray[intervalNumber % 12] + intervalOctave.toString()
 
     intervalNamefromNoteName = =>
@@ -182,8 +157,9 @@ class Interval extends Note
       @direction = 'down'
       position = (12 - offsetPosition + rootPosition) % 12
 
-      if @tonic.octave < @octave or (@tonic.octave is @octave and offsetPosition > rootPosition)
-        offsetPosition +=12 if offsetPosition < rootPosition
+      if @tonic.octave < @octave or
+      (@tonic.octave is @octave and offsetPosition > rootPosition)
+        offsetPosition += 12 if offsetPosition < rootPosition
         position = offsetPosition - rootPosition
         @direction = 'up'
 
@@ -211,6 +187,7 @@ if window?
   Interval::pluck=  (length) ->
     @pluck.call(this, length, 2)
     @pluck.call(@tonic, length, 2)
+
 class Collection
   constructor: (val, temp, collection) ->
     @tonic = temp.tonic
@@ -375,7 +352,7 @@ class Temper
     if val?
       @tonic = new Note(val, this)
 
-    this
+    @tonic
 
   rootFrequency: ->
     ratio = utils.ratioFromCents temperaments[@_temperament][9]
@@ -437,7 +414,7 @@ temper.tonic = (val) ->
 
 temper.chords = (val) ->
   utils.list.call(chords, val)
-  
+
 temper.intervals = (val) ->
   utils.list.call(intervals, val, true)
 
@@ -453,10 +430,11 @@ if typeof exports isnt "undefined"
   module.exports = temper
 else
   root["temper"] = temper
+
 if window?
   window.AudioContext = window.AudioContext || window.webkitAudioContext
   context = new AudioContext()
-  
+
   Temper::play = (length = 2, numOfNotes = 1) ->
     volume = 0.9 / numOfNotes
     begin = context.currentTime
@@ -484,8 +462,8 @@ if window?
 
     _karplusStrong = (freq) ->
       noise = []
-      samples = new Float32Array context.sampleRate
-      
+      samples = new Float32Array(context.sampleRate)
+
       # generate noise
       period = Math.floor(context.sampleRate / freq)
       i = 0

@@ -15,24 +15,8 @@ A4 = 'd5'
 
 intervals = [U, m2, M2, m3, M3, P4, d5, P5, m6, M6, m7, M7, O ]
 
-# intervals_full = [
-#   'unison'
-#   'minor second'
-#   'major second'
-#   'minor third'
-#   'major third'
-#   'perfect fourth'
-#   'diminished fifth'
-#   'perfect fifth'
-#   'minor sixth'
-#   'major sixth'
-#   'minor seventh'
-#   'major seventh'
-#   'octave'
-# ]
-
 class Interval extends Note
-  constructor: (val, temp, @direction="up", octaveOffset="0") ->
+  constructor: (val, temp, @direction = "up", octaveOffset = "0") ->
     @tonic = temp.tonic
 
     noteFromInterval = (val, octaveOffset) =>
@@ -52,7 +36,7 @@ class Interval extends Note
         if intervalNumber < 0
           intervalNumber += 12
           intervalOctave -= 1
-          
+
       intervalNote = noteArray[intervalNumber % 12] + intervalOctave.toString()
 
     intervalNamefromNoteName = =>
@@ -64,8 +48,9 @@ class Interval extends Note
       @direction = 'down'
       position = (12 - offsetPosition + rootPosition) % 12
 
-      if @tonic.octave < @octave or (@tonic.octave is @octave and offsetPosition > rootPosition)
-        offsetPosition +=12 if offsetPosition < rootPosition
+      if @tonic.octave < @octave or
+      (@tonic.octave is @octave and offsetPosition > rootPosition)
+        offsetPosition += 12 if offsetPosition < rootPosition
         position = offsetPosition - rootPosition
         @direction = 'up'
 

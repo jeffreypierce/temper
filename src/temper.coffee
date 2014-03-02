@@ -24,7 +24,7 @@ class Temper
     if val?
       @tonic = new Note(val, this)
 
-    this
+    @tonic
 
   rootFrequency: ->
     ratio = utils.ratioFromCents temperaments[@_temperament][9]
@@ -33,6 +33,16 @@ class Temper
   note: (noteName) ->
     if noteName?
       @tonic = new Note(noteName, this)
+
+      if(@_interval?)
+        @interval(@_interval.name)
+
+      if(@_scale?)
+        @scale(@_scale.names)
+
+      if(@_chord?)
+        @chord(@_chord.name)
+
     else
       @tonic
 
@@ -86,7 +96,10 @@ temper.tonic = (val) ->
 
 temper.chords = (val) ->
   utils.list.call(chords, val)
-  
+
+temper.scales = (val) ->
+  utils.list.call(scales, val)
+
 temper.intervals = (val) ->
   utils.list.call(intervals, val, true)
 
