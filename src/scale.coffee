@@ -30,23 +30,23 @@ scales =
 
 class Scale extends Collection
   constructor: (scale, temp) ->
-    super(scale, temp, scales)
+    super scale, temp, scales
 
 if window?
   Scale::play = (length = 1) ->
-    @_play.call(@tonic, length, 3)
+    @_play.call @tonic, length, 3
     for note, i in @notes then do (note) =>
       setTimeout ( =>
-        @_play.call(note, length, 3)
+        @_play.call note, length, 3
       ), length * 1000 / 2 * (i + 1)
 
     this
 
   Scale::pluck =  (length = 1) ->
-    @_pluck.call(@tonic, length, 3)
+    @_pluck.call @tonic, length, 3
     for note, i in @notes then do (note) =>
       setTimeout ( =>
-        @_pluck.call(note, length, 3)
+        @_pluck.call note, length, 3
       ), length * 1000  / 2 * (i + 1)
 
       this

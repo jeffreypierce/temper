@@ -30,16 +30,14 @@ module.exports = (grunt) ->
           'src/*.coffee'
           # 'tests/*.coffee'
         ]
-          
+
     uglify:
       my_target:
         files:
           'temper.min.js': ['temper.js']
-   
+
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-karma'
-  grunt.registerTask('default', ['coffee', 'uglify'])
-
-
+  grunt.registerTask 'default', ['coffee', 'uglify']

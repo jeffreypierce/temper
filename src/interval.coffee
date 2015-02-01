@@ -26,12 +26,12 @@ class Interval extends Note
       intervalOctave = @tonic.octave
 
       if @direction is 'up'
-        intervalOctave += parseInt(octaveOffset, 10)
+        intervalOctave += parseInt octaveOffset, 10
         intervalNumber = noteArray.indexOf(@tonic.letter) + position
         intervalOctave += 1 if intervalNumber >= 12
 
       else if @direction is 'down'
-        intervalOctave -= parseInt(octaveOffset, 10)
+        intervalOctave -= parseInt octaveOffset, 10
         intervalNumber = noteArray.indexOf(@tonic.letter) - position
         if intervalNumber < 0
           intervalNumber += 12
@@ -57,9 +57,9 @@ class Interval extends Note
       intervals[position]
 
     if intervals.indexOf(val) > -1
-      val = noteFromInterval(val, octaveOffset)
+      val = noteFromInterval val, octaveOffset
 
-    super(val, temp)
+    super val, temp
 
     @intervalName = intervalNamefromNoteName() if !utils.type(@intervalName)
 
@@ -72,9 +72,9 @@ class Interval extends Note
 
 if window?
   Interval::play = (length) ->
-    @play.call(this, length, 2)
-    @play.call(@tonic, length, 2)
+    @play.call this, length, 2
+    @play.call @tonic, length, 2
 
   Interval::pluck=  (length) ->
-    @pluck.call(this, length, 2)
-    @pluck.call(@tonic, length, 2)
+    @pluck.call this, length, 2
+    @pluck.call @tonic, length, 2

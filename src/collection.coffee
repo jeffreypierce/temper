@@ -3,11 +3,11 @@ class Collection
     @tonic = temp.tonic
     @notes = []
     @name = 'unknown'
-   
+
     if window?
       @_play = temp.play
       @_pluck = temp.pluck
-      
+
     collectionFromName = (val) =>
       if collection[val]
         @name = val
@@ -20,7 +20,7 @@ class Collection
       positions = []
       for note, i in val
         if note.indexOf(',') > -1
-          complexInterval = note.split(',')
+          complexInterval = note.split ','
           note = complexInterval[0].trim()
           direction = complexInterval[1].trim()
           octave = complexInterval[2].trim()

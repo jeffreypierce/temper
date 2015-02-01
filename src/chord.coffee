@@ -18,8 +18,8 @@ chords =
 
 class Chord extends Collection
   constructor: (chord, temp) ->
-    super(chord, temp, chords)
-      
+    super chord, temp, chords
+
 if window?
   Chord::play = (length) ->
     @_play.call(@tonic, length, @notes.length + 1)

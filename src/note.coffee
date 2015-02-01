@@ -16,7 +16,7 @@ class Note
 
     noteFromName = (noteName) =>
       getFrequencyFromNoteLetter = =>
-        noteArray = @getNoteArray(@letter)
+        noteArray = @getNoteArray @letter
         position = noteArray.indexOf @letter
         ratio = utils.ratioFromCents(temperaments[@temperament][position])
 
@@ -67,7 +67,7 @@ class Note
 
 if window?
   Note::play = (length) ->
-    @_play.call(this, length)
+    @_play.call this, length
 
   Note::pluck=  (length) ->
-    @_pluck.call(this, length)
+    @_pluck.call this, length
