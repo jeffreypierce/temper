@@ -14,7 +14,7 @@ class Collection
         for interval in collection[val]
           @notes.push new Interval(interval, temp)
       else
-        throw new TypeError("Name #{val} is not a valid argument")
+        throw new TypeError "Name #{val} is not a valid argument"
 
     collectionFromArray = (val) =>
       positions = []
@@ -24,9 +24,9 @@ class Collection
           note = complexInterval[0].trim()
           direction = complexInterval[1].trim()
           octave = complexInterval[2].trim()
-          interval = new Interval(note, temp, direction, octave)
+          interval = new Interval note, temp, direction, octave
         else
-          interval = new Interval(note, temp)
+          interval = new Interval note, temp
 
         positions.push interval.intervalName
         @notes.push interval
@@ -36,15 +36,15 @@ class Collection
           @name = key
           break
 
-    collectionFromName(val) if utils.type(val) is 'string'
-    collectionFromArray(val) if utils.type(val) is 'array'
+    collectionFromName val if utils.type(val) is 'string'
+    collectionFromArray val if utils.type(val) is 'array'
 
     @frequencies = [@tonic.frequency]
     @names = [@tonic.name]
     @midiNotes = [@tonic.midiNote]
     for note in @notes
-      @frequencies.push(note.frequency)
-      @names.push(note.name)
-      @midiNotes.push(note.midiNote)
+      @frequencies.push note.frequency
+      @names.push note.name
+      @midiNotes.push note.midiNote
 
     this

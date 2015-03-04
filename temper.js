@@ -17,14 +17,6 @@
       };
       return classType[toString.call(obj)];
     },
-    normalize: function(num, precision) {
-      var multiplier;
-      if (precision == null) {
-        precision = 3;
-      }
-      multiplier = Math.pow(10, precision);
-      return Math.round(num * multiplier) / multiplier;
-    },
     list: function(val, arr) {
       var key, name, _i, _len, _results, _results1;
       if (val && this[val]) {
@@ -46,13 +38,78 @@
         }
       }
     },
+    normalize: function(num, precision) {
+      var multiplier;
+      if (precision == null) {
+        precision = 3;
+      }
+      multiplier = Math.pow(10, precision);
+      return Math.round(num * multiplier) / multiplier;
+    },
     centOffset: function(freq1, freq2) {
       return Math.round(1200 * Math.log(freq1 / freq2) / Math.log(2));
     },
-    ratioFromCents: function(cents) {
+    decimalFromCents: function(cents) {
       return Math.pow(2, cents / 100 / 12);
     },
-    stepRatio: Math.log(Math.pow(2, 1 / 12))
+    ratioFromCents: function(cents) {
+      return utils.ratioFromNumber(utils.decimalFromCents(cents));
+    },
+    ratioFromNumber: function(number, delineator) {
+      var delin, denominator, fractionArray, getFractionArray, numerator, ratio;
+      delin = delineator || ':';
+      ratio = '0';
+      numerator = void 0;
+      denominator = void 0;
+      getFractionArray = function(num) {
+        var accuracy, decimal, fractionArray, hasWhole, i, interationLimit, q;
+        hasWhole = false;
+        interationLimit = 1000;
+        accuracy = 0.001;
+        fractionArray = [];
+        if (num >= 1) {
+          hasWhole = true;
+          fractionArray.push(Math.floor(num));
+        }
+        if (num - Math.floor(num) === 0) {
+          return fractionArray;
+        }
+        if (hasWhole) {
+          num = num - Math.floor(num);
+        }
+        decimal = num - parseInt(num, 10);
+        q = decimal;
+        i = 0;
+        while (Math.abs(q - Math.round(q)) > accuracy) {
+          if (i === interationLimit) {
+            return false;
+          }
+          i++;
+          q = i / decimal;
+        }
+        fractionArray.push(Math.round(q * num));
+        fractionArray.push(Math.round(q));
+        return fractionArray;
+      };
+      if (number || number !== Infinity) {
+        fractionArray = getFractionArray(number);
+        switch (fractionArray.length) {
+          case 1:
+            numerator = number;
+            denominator = 1;
+            break;
+          case 2:
+            numerator = fractionArray[0];
+            denominator = fractionArray[1];
+            break;
+          case 3:
+            numerator = fractionArray[0] * fractionArray[2] + fractionArray[1];
+            denominator = fractionArray[2];
+        }
+        ratio = numerator + delin + denominator;
+      }
+      return ratio;
+    }
   };
 
   notesFlat = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
@@ -69,7 +126,6 @@
         this._play = temp.play;
         this._pluck = temp.pluck;
       }
-      console.log('note');
       this.rootFrequency = temp.rootFrequency();
       this.temperament = temp._temperament;
       referenceFrequency = function() {
@@ -85,7 +141,7 @@
           return utils.normalize(ratio * referenceFrequency());
         };
         parsed = /([A-Ga-g])([b#]?)(\d+)/.exec(noteName);
-        if ((parsed != null)) {
+        if (parsed != null) {
           _this.octave = parseInt(parsed[3], 10);
           _this.accidental = parsed[2];
           _this.letter = parsed[1].toUpperCase();
@@ -93,30 +149,33 @@
             _this.letter += _this.accidental;
           }
           _this.frequency = utils.normalize(getFrequencyFromNoteLetter());
-          return _this.name = val;
+          _this.name = val;
+          return _this.centOffset = 0;
         } else {
           throw new TypeError("Note name " + noteName + " is not a valid argument");
         }
       };
       noteFromFreq = function(freq) {
-        var accidental, getNoteLetterFromFrequency;
+        var accidental, getNoteLetterFromFrequency, trueFreq;
         getNoteLetterFromFrequency = function() {
           var baseFreq, noteArray, noteNumber;
           baseFreq = Math.log(_this.frequency / referenceFrequency());
-          noteNumber = Math.round(baseFreq / utils.stepRatio);
+          noteNumber = Math.round(baseFreq / Math.log(Math.pow(2, 1 / 12)));
           if (noteNumber === 12) {
             _this.octave += 1;
           }
           noteArray = _this.getNoteArray();
           return noteArray[noteNumber % 12];
         };
-        if ((30000 > freq && freq > 0)) {
+        if ((20000 > freq && freq > 0)) {
           _this.octave = Math.floor(Math.log(freq / _this.rootFrequency) / Math.log(2));
           _this.frequency = utils.normalize(freq);
           _this.letter = getNoteLetterFromFrequency();
           _this.name = _this.letter + _this.octave.toString();
           accidental = _this.name.match(/[b#]/);
-          return _this.accidental = accidental != null ? accidental : "";
+          _this.accidental = accidental != null ? accidental : "";
+          trueFreq = temper(_this.name);
+          return _this.centOffset = utils.centOffset(_this.frequency, trueFreq.tonic.frequency);
         } else {
           throw new RangeError("Frequency " + freq + " is not valid");
         }
@@ -509,9 +568,9 @@
   temperaments['Silbermann'] = temperaments['1/5 comma Meantone'];
 
   Temper = (function() {
-    function Temper(val, tuningFrequency, _temperament) {
-      this.tuningFrequency = tuningFrequency != null ? tuningFrequency : 440;
+    function Temper(val, _temperament, tuningFrequency) {
       this._temperament = _temperament != null ? _temperament : 'Equal';
+      this.tuningFrequency = tuningFrequency != null ? tuningFrequency : 440;
       if (val != null) {
         this.tonic = new Note(val, this);
       }
@@ -520,13 +579,22 @@
 
     Temper.prototype.rootFrequency = function() {
       var ratio;
-      ratio = utils.ratioFromCents(temperaments[this._temperament][9]);
+      ratio = utils.decimalFromCents(temperaments[this._temperament][9]);
       return this.tuningFrequency / Math.pow(2, 4) / ratio;
     };
 
     Temper.prototype.note = function(noteName) {
       if (noteName != null) {
-        return this.tonic = new Note(noteName, this);
+        this.tonic = new Note(noteName, this);
+        if (this._interval != null) {
+          this.interval(this._interval.name);
+        }
+        if (this._scale != null) {
+          this.scale(this._scale.names);
+        }
+        if (this._chord != null) {
+          return this.chord(this._chord.name);
+        }
       } else {
         return this.tonic;
       }
@@ -537,13 +605,13 @@
         if (temperaments[temperament]) {
           this._temperament = temperament;
           this.tonic = this.note(this.tonic.name);
-          if ((this._interval != null)) {
+          if (this._interval != null) {
             this.interval(this._interval.name);
           }
-          if ((this._scale != null)) {
+          if (this._scale != null) {
             this.scale(this._scale.names);
           }
-          if ((this._chord != null)) {
+          if (this._chord != null) {
             this.chord(this._chord.name);
           }
         }
@@ -581,20 +649,16 @@
 
   })();
 
-  temper = function(val, tuningFrequency, temperament) {
-    return new Temper(val, tuningFrequency, temperament);
-  };
-
-  temper.note = function(val) {
-    return new Temper(val);
-  };
-
-  temper.tonic = function(val) {
-    return new Temper(val);
+  temper = function(val, temperament, tuningFrequency) {
+    return new Temper(val, temperament, tuningFrequency);
   };
 
   temper.chords = function(val) {
     return utils.list.call(chords, val);
+  };
+
+  temper.scales = function(val) {
+    return utils.list.call(scales, val);
   };
 
   temper.intervals = function(val) {
@@ -606,6 +670,8 @@
   };
 
   temper.centOffset = utils.centOffset;
+
+  temper.ratioFromCents = utils.ratioFromCents;
 
   root = this;
 
@@ -698,6 +764,4 @@
 
 }).call(this);
 
-/*
 //# sourceMappingURL=.././temper.js.map
-*/

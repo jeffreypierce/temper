@@ -10,10 +10,6 @@ utils =
     }
     classType[toString.call(obj)]
 
-  normalize: (num, precision = 3) ->
-    multiplier = Math.pow(10, precision)
-    Math.round(num * multiplier) / multiplier
-
   list: (val, arr) ->
     if val and this[val]
       this[val]
@@ -25,13 +21,63 @@ utils =
         for key of this
           key
 
+  normalize: (num, precision = 3) ->
+    multiplier = Math.pow 10, precision
+    Math.round(num * multiplier) / multiplier
+
   centOffset: (freq1, freq2) ->
-    Math.round(1200 * Math.log(freq1 / freq2) / Math.log 2)
+    Math.round 1200 * Math.log(freq1 / freq2) / Math.log 2
+
+  decimalFromCents: (cents) ->
+    Math.pow 2, (cents / 100 / 12)
 
   ratioFromCents: (cents) ->
-    Math.pow(2, (cents / 100 / 12))
+    utils.ratioFromNumber utils.decimalFromCents(cents)
 
-  stepRatio: Math.log Math.pow(2, 1 / 12)
+  ratioFromNumber: (number, delineator) ->
+    delin = delineator or ':'
+    ratio = '0'
+    numerator = undefined
+    denominator = undefined
+
+    getFractionArray = (num) ->
+      hasWhole = false
+      interationLimit = 1000
+      accuracy = 0.001
+      fractionArray = []
+      if num >= 1
+        hasWhole = true
+        fractionArray.push Math.floor(num)
+      if num - Math.floor(num) == 0
+        return fractionArray
+      if hasWhole
+        num = num - Math.floor(num)
+      decimal = num - parseInt(num, 10)
+      q = decimal
+      i = 0
+      while Math.abs(q - Math.round(q)) > accuracy
+        if i == interationLimit
+          return false
+        i++
+        q = i / decimal
+      fractionArray.push Math.round(q * num)
+      fractionArray.push Math.round(q)
+      fractionArray
+
+    if number or number != Infinity
+      fractionArray = getFractionArray(number)
+      switch fractionArray.length
+        when 1
+          numerator = number
+          denominator = 1
+        when 2
+          numerator = fractionArray[0]
+          denominator = fractionArray[1]
+        when 3
+          numerator = fractionArray[0] * fractionArray[2] + fractionArray[1]
+          denominator = fractionArray[2]
+      ratio = numerator + delin + denominator
+    ratio
 
 notesFlat = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']
 notesSharp = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
@@ -42,18 +88,18 @@ class Note
     if window?
       @_play = temp.play
       @_pluck = temp.pluck
-    console.log 'note'
+
     @rootFrequency = temp.rootFrequency()
     @temperament = temp._temperament
 
     referenceFrequency = =>
-      @rootFrequency * Math.pow(2, @octave)
+      @rootFrequency * Math.pow 2, @octave
 
     noteFromName = (noteName) =>
       getFrequencyFromNoteLetter = =>
-        noteArray = @getNoteArray(@letter)
+        noteArray = @getNoteArray @letter
         position = noteArray.indexOf @letter
-        ratio = utils.ratioFromCents(temperaments[@temperament][position])
+        ratio = utils.ratioFromCents temperaments[@temperament][position]
 
         utils.normalize ratio * referenceFrequency()
 
@@ -61,51 +107,57 @@ class Note
                    ([b#]?) # match accidental
                    (\d+) # match octave
                 ///.exec noteName
-      if(parsed?)
-        @octave = parseInt(parsed[3], 10)
+      if parsed?
+        @octave = parseInt parsed[3], 10
         @accidental = parsed[2]
         @letter = parsed[1].toUpperCase()
         @letter += @accidental if @accidental?
         @frequency = utils.normalize getFrequencyFromNoteLetter()
         @name = val
+        @centOffset = 0
 
       else
-        throw new TypeError("Note name #{noteName} is not a valid argument")
+        throw new TypeError "Note name #{noteName} is not a valid argument"
 
     noteFromFreq = (freq) =>
       getNoteLetterFromFrequency = =>
         baseFreq = Math.log @frequency / referenceFrequency()
-        noteNumber = Math.round baseFreq / utils.stepRatio
+
+        # equal temperament naming
+        noteNumber = Math.round baseFreq / Math.log Math.pow(2, 1 / 12)
+
         @octave += 1 if noteNumber is 12
         noteArray = @getNoteArray()
 
         noteArray[noteNumber % 12]
 
-      if 30000 > freq > 0
-        @octave = Math.floor(Math.log(freq / @rootFrequency) / Math.log 2)
+      if 20000 > freq > 0
+        @octave = Math.floor Math.log(freq / @rootFrequency) / Math.log 2
         @frequency = utils.normalize freq
         @letter = getNoteLetterFromFrequency()
         @name = @letter + @octave.toString()
-        accidental = @name.match(/[b#]/)
+        accidental = @name.match /[b#]/
         @accidental = if accidental? then accidental else ""
+        trueFreq = temper @name
+        @centOffset = utils.centOffset @frequency, trueFreq.tonic.frequency,
 
       else
-        throw new RangeError("Frequency #{freq} is not valid")
+        throw new RangeError "Frequency #{freq} is not valid"
 
-    noteFromName(val) if utils.type(val) is "string"
-    noteFromFreq(val) if utils.type(val) is "number"
+    noteFromName val if utils.type(val) is "string"
+    noteFromFreq val if utils.type(val) is "number"
 
-    @midiNote = Math.round(12 * Math.log(@frequency / 440) / Math.log(2) + 69)
+    @midiNote = Math.round 12 * Math.log(@frequency / 440) / Math.log(2) + 69
 
   getNoteArray: (letter) ->
     if flatKeys.indexOf(letter) > -1 then notesFlat else notesSharp
 
 if window?
   Note::play = (length) ->
-    @_play.call(this, length)
+    @_play.call this, length
 
   Note::pluck=  (length) ->
-    @_pluck.call(this, length)
+    @_pluck.call this, length
 
 U = 'U'
 m2 = 'm2'
@@ -135,12 +187,12 @@ class Interval extends Note
       intervalOctave = @tonic.octave
 
       if @direction is 'up'
-        intervalOctave += parseInt(octaveOffset, 10)
+        intervalOctave += parseInt octaveOffset, 10
         intervalNumber = noteArray.indexOf(@tonic.letter) + position
         intervalOctave += 1 if intervalNumber >= 12
 
       else if @direction is 'down'
-        intervalOctave -= parseInt(octaveOffset, 10)
+        intervalOctave -= parseInt octaveOffset, 10
         intervalNumber = noteArray.indexOf(@tonic.letter) - position
         if intervalNumber < 0
           intervalNumber += 12
@@ -166,9 +218,9 @@ class Interval extends Note
       intervals[position]
 
     if intervals.indexOf(val) > -1
-      val = noteFromInterval(val, octaveOffset)
+      val = noteFromInterval val, octaveOffset
 
-    super(val, temp)
+    super val, temp
 
     @intervalName = intervalNamefromNoteName() if !utils.type(@intervalName)
 
@@ -181,42 +233,42 @@ class Interval extends Note
 
 if window?
   Interval::play = (length) ->
-    @play.call(this, length, 2)
-    @play.call(@tonic, length, 2)
+    @play.call this, length, 2
+    @play.call @tonic, length, 2
 
   Interval::pluck=  (length) ->
-    @pluck.call(this, length, 2)
-    @pluck.call(@tonic, length, 2)
+    @pluck.call this, length, 2
+    @pluck.call @tonic, length, 2
 
 class Collection
   constructor: (val, temp, collection) ->
     @tonic = temp.tonic
     @notes = []
     @name = 'unknown'
-   
+
     if window?
       @_play = temp.play
       @_pluck = temp.pluck
-      
+
     collectionFromName = (val) =>
       if collection[val]
         @name = val
         for interval in collection[val]
           @notes.push new Interval(interval, temp)
       else
-        throw new TypeError("Name #{val} is not a valid argument")
+        throw new TypeError "Name #{val} is not a valid argument"
 
     collectionFromArray = (val) =>
       positions = []
       for note, i in val
         if note.indexOf(',') > -1
-          complexInterval = note.split(',')
+          complexInterval = note.split ','
           note = complexInterval[0].trim()
           direction = complexInterval[1].trim()
           octave = complexInterval[2].trim()
-          interval = new Interval(note, temp, direction, octave)
+          interval = new Interval note, temp, direction, octave
         else
-          interval = new Interval(note, temp)
+          interval = new Interval note, temp
 
         positions.push interval.intervalName
         @notes.push interval
@@ -226,18 +278,19 @@ class Collection
           @name = key
           break
 
-    collectionFromName(val) if utils.type(val) is 'string'
-    collectionFromArray(val) if utils.type(val) is 'array'
+    collectionFromName val if utils.type(val) is 'string'
+    collectionFromArray val if utils.type(val) is 'array'
 
     @frequencies = [@tonic.frequency]
     @names = [@tonic.name]
     @midiNotes = [@tonic.midiNote]
     for note in @notes
-      @frequencies.push(note.frequency)
-      @names.push(note.name)
-      @midiNotes.push(note.midiNote)
+      @frequencies.push note.frequency
+      @names.push note.name
+      @midiNotes.push note.midiNote
 
     this
+
 chords =
   'maj': [M3, P5]
   'maj6': [M3, P5, M6]
@@ -258,22 +311,23 @@ chords =
 
 class Chord extends Collection
   constructor: (chord, temp) ->
-    super(chord, temp, chords)
-      
+    super chord, temp, chords
+
 if window?
   Chord::play = (length) ->
-    @_play.call(@tonic, length, @notes.length + 1)
+    @_play.call @tonic, length, @notes.length + 1
     for note in @notes then do (note) =>
-      @_play.call(note, length, @notes.length + 1)
+      @_play.call note, length, @notes.length + 1
 
     this
 
   Chord::pluck =  (length) ->
-    @_pluck.call(@tonic, length, @notes.length + 1)
+    @_pluck.call @tonic, length, @notes.length + 1
     for note in @notes then do (note) =>
-      @_pluck.call(note, length, @notes.length + 1)
+      @_pluck.call note, length, @notes.length + 1
 
     this
+
 scales =
   'Major': [M2, M3, P4, P5, M6, M7, O]
   'Melodic Minor': [M2, m3, P4, P5, m6, m7, O]
@@ -303,29 +357,29 @@ scales =
   'Tritone': [m2, M3, d5, P5, m7, O]
   'Hungarian': [M2, m3, d5, P5, m6, M7, O]
 
-
 class Scale extends Collection
   constructor: (scale, temp) ->
-    super(scale, temp, scales)
+    super scale, temp, scales
 
 if window?
   Scale::play = (length = 1) ->
-    @_play.call(@tonic, length, 3)
+    @_play.call @tonic, length, 3
     for note, i in @notes then do (note) =>
       setTimeout ( =>
-        @_play.call(note, length, 3)
+        @_play.call note, length, 3
       ), length * 1000 / 2 * (i + 1)
 
     this
 
   Scale::pluck =  (length = 1) ->
-    @_pluck.call(@tonic, length, 3)
+    @_pluck.call @tonic, length, 3
     for note, i in @notes then do (note) =>
       setTimeout ( =>
-        @_pluck.call(note, length, 3)
+        @_pluck.call note, length, 3
       ), length * 1000  / 2 * (i + 1)
 
       this
+
 temperaments =
   'Equal': [0,100,200,300,400,500,600,700,800,900,1000,1100,1200]
   'Pythagorean': [0,113.69,203.91,294.13,407.82,498.04,611.73,701.95,815.64,905.87,996.09,1109.78,120]
@@ -348,19 +402,23 @@ temperaments['Aaron'] = temperaments['1/4 comma Meantone']
 temperaments['Silbermann'] = temperaments['1/5 comma Meantone']
 
 class Temper
-  constructor: (val, @tuningFrequency = 440, @_temperament = 'Equal') ->
+  constructor: (val, @_temperament = 'Equal', @tuningFrequency = 440) ->
     if val?
-      @tonic = new Note(val, this)
+      @tonic = new Note val, this
 
     @tonic
 
   rootFrequency: ->
-    ratio = utils.ratioFromCents temperaments[@_temperament][9]
+    ratio = utils.decimalFromCents temperaments[@_temperament][9]
     @tuningFrequency / Math.pow(2, 4) / ratio
 
   note: (noteName) ->
     if noteName?
-      @tonic = new Note(noteName, this)
+      @tonic = new Note noteName, this
+
+      @interval @_interval.name  if @_interval?
+      @scale @_scale.names  if @_scale?
+      @chord @_chord.name  if @_chord?
     else
       @tonic
 
@@ -370,16 +428,11 @@ class Temper
       if temperaments[temperament]
         @_temperament = temperament
 
-        @tonic = @note(@tonic.name)
+        @tonic = @note @tonic.name
 
-        if(@_interval?)
-          @interval(@_interval.name)
-
-        if(@_scale?)
-          @scale(@_scale.names)
-
-        if(@_chord?)
-          @chord(@_chord.name)
+        @interval @_interval.name  if @_interval?
+        @scale @_scale.names  if @_scale?
+        @chord @_chord.name  if @_chord?
 
       this
     else
@@ -387,41 +440,40 @@ class Temper
 
   interval: (interval, direction, octaveOffset) ->
     if interval?
-      @_interval = new Interval(interval, this, direction, octaveOffset)
+      @_interval = new Interval interval, this, direction, octaveOffset
     else
       @_interval
 
   scale: (scale) ->
     if scale?
-      @_scale = new Scale(scale, this)
+      @_scale = new Scale scale, this
     else
       @_scale
 
   chord: (chord) ->
     if chord?
-      @_chord = new Chord(chord, this)
+      @_chord = new Chord chord, this
     else
       @_chord
 
-temper = (val, tuningFrequency, temperament) ->
-  new Temper(val, tuningFrequency, temperament)
-
-temper.note = (val) ->
-  new Temper(val)
-
-temper.tonic = (val) ->
-  new Temper(val)
+temper = (val, temperament, tuningFrequency) ->
+  new Temper val, temperament, tuningFrequency
 
 temper.chords = (val) ->
-  utils.list.call(chords, val)
+  utils.list.call chords, val
+
+temper.scales = (val) ->
+  utils.list.call scales, val
 
 temper.intervals = (val) ->
-  utils.list.call(intervals, val, true)
+  utils.list.call intervals, val, true
 
 temper.temperaments = (val) ->
-  utils.list.call(temperaments, val)
+  utils.list.call temperaments, val
 
 temper.centOffset = utils.centOffset
+
+temper.ratioFromCents = utils.ratioFromCents
 
 # node or browser
 root = this

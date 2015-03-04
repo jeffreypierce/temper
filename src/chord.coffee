@@ -22,15 +22,15 @@ class Chord extends Collection
 
 if window?
   Chord::play = (length) ->
-    @_play.call(@tonic, length, @notes.length + 1)
+    @_play.call @tonic, length, @notes.length + 1
     for note in @notes then do (note) =>
-      @_play.call(note, length, @notes.length + 1)
+      @_play.call note, length, @notes.length + 1
 
     this
 
   Chord::pluck =  (length) ->
-    @_pluck.call(@tonic, length, @notes.length + 1)
+    @_pluck.call @tonic, length, @notes.length + 1
     for note in @notes then do (note) =>
-      @_pluck.call(note, length, @notes.length + 1)
+      @_pluck.call note, length, @notes.length + 1
 
     this

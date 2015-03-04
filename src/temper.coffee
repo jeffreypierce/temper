@@ -20,29 +20,23 @@ temperaments['Aaron'] = temperaments['1/4 comma Meantone']
 temperaments['Silbermann'] = temperaments['1/5 comma Meantone']
 
 class Temper
-  constructor: (val, @tuningFrequency = 440, @_temperament = 'Equal') ->
+  constructor: (val, @_temperament = 'Equal', @tuningFrequency = 440) ->
     if val?
-      @tonic = new Note(val, this)
+      @tonic = new Note val, this
 
     @tonic
 
   rootFrequency: ->
-    ratio = utils.ratioFromCents temperaments[@_temperament][9]
+    ratio = utils.decimalFromCents temperaments[@_temperament][9]
     @tuningFrequency / Math.pow(2, 4) / ratio
 
   note: (noteName) ->
     if noteName?
-      @tonic = new Note(noteName, this)
+      @tonic = new Note noteName, this
 
-      if(@_interval?)
-        @interval(@_interval.name)
-
-      if(@_scale?)
-        @scale(@_scale.names)
-
-      if(@_chord?)
-        @chord(@_chord.name)
-
+      @interval @_interval.name  if @_interval?
+      @scale @_scale.names  if @_scale?
+      @chord @_chord.name  if @_chord?
     else
       @tonic
 
@@ -52,16 +46,11 @@ class Temper
       if temperaments[temperament]
         @_temperament = temperament
 
-        @tonic = @note(@tonic.name)
+        @tonic = @note @tonic.name
 
-        if(@_interval?)
-          @interval(@_interval.name)
-
-        if(@_scale?)
-          @scale(@_scale.names)
-
-        if(@_chord?)
-          @chord(@_chord.name)
+        @interval @_interval.name  if @_interval?
+        @scale @_scale.names  if @_scale?
+        @chord @_chord.name  if @_chord?
 
       this
     else
@@ -69,44 +58,40 @@ class Temper
 
   interval: (interval, direction, octaveOffset) ->
     if interval?
-      @_interval = new Interval(interval, this, direction, octaveOffset)
+      @_interval = new Interval interval, this, direction, octaveOffset
     else
       @_interval
 
   scale: (scale) ->
     if scale?
-      @_scale = new Scale(scale, this)
+      @_scale = new Scale scale, this
     else
       @_scale
 
   chord: (chord) ->
     if chord?
-      @_chord = new Chord(chord, this)
+      @_chord = new Chord chord, this
     else
       @_chord
 
-temper = (val, tuningFrequency, temperament) ->
-  new Temper(val, tuningFrequency, temperament)
-
-temper.note = (val) ->
-  new Temper(val)
-
-temper.tonic = (val) ->
-  new Temper(val)
+temper = (val, temperament, tuningFrequency) ->
+  new Temper val, temperament, tuningFrequency
 
 temper.chords = (val) ->
-  utils.list.call(chords, val)
+  utils.list.call chords, val
 
 temper.scales = (val) ->
-  utils.list.call(scales, val)
+  utils.list.call scales, val
 
 temper.intervals = (val) ->
-  utils.list.call(intervals, val, true)
+  utils.list.call intervals, val, true
 
 temper.temperaments = (val) ->
-  utils.list.call(temperaments, val)
+  utils.list.call temperaments, val
 
 temper.centOffset = utils.centOffset
+
+temper.ratioFromCents = utils.ratioFromCents
 
 # node or browser
 root = this

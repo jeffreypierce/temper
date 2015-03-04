@@ -27,7 +27,6 @@ scales =
   'Tritone': [m2, M3, d5, P5, m7, O]
   'Hungarian': [M2, m3, d5, P5, m6, M7, O]
 
-
 class Scale extends Collection
   constructor: (scale, temp) ->
     super scale, temp, scales
