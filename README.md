@@ -1,3 +1,8 @@
+THIS REP IS NO LONGER MAINTAINED. A NEW, COMPLETELY REWRITTEN VERSION WILL BE RELEASED SOON>
+
+---
+
+
 # Temper.js
 A lightweight music theory library for tuning the [web audio api](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html).
 
